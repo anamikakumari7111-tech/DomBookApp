@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Book Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <a href="index.html" class="back-link">← Back to Home</a>
+
+    <div class="admin-container">
+
+        <h2>Book Management</h2>
+
+        <!-- Add Book Form -->
+        <div class="form-box">
+            <h3>Add Book</h3>
+
+            <input id="title" type="text" placeholder="Enter Title">
+            <input id="author" type="text" placeholder="Enter Author">
+
+            <select id="category">
+                <option value="Fiction">Fiction</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Technical">Technical</option>
+            </select>
+
+            <button class="btn" id="addBook">Add Book</button>
+        </div>
+
+        <!-- Sort & Filter -->
+        <div class="controls">
+            <button class="btn" id="sortBtn">Sort A → Z</button>
+
+            <select id="filter">
+                <option value="All">All</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Technical">Technical</option>
+            </select>
+        </div>
+
+        <!-- Books Grid -->
+        <div id="bookGrid" class="grid"></div>
+
+    </div>
+
+<script>
+    let books = [];
+    let isAscending = true;
+    const imageUrl = "https://m.media-amazon.com/images/I/71ZB18P3inL._SY522_.jpg";
+
+    const titleInput = document.getElementById("title");
+    const authorInput = document.getElementById("author");
+    const categoryInput = document.getElementById("category");
+    const addBookBtn = document.getElementById("addBook");
+    const sortBtn = document.getElementById("sortBtn");
+    const filterSelect = document.getElementById("filter");
+    const bookGrid = document.getElementById("bookGrid");
+
+    // Add Book
+    addBookBtn.addEventListener("click", () => {
+        const title = titleInput.value.trim();
+        const author = authorInput.value.trim();
+        const category = categoryInput.value;
+
+        if (!title || !author) {
+            alert("Please fill all fields!");
+            return;
+        }
+
+        const book = { title, author, category, imageUrl };
+        books.push(book);
+
+        renderBooks();
+        titleInput.value = "";
+        authorInput.value = "";
+    });
+
+    // Render Books
+    function renderBooks() {
+        bookGrid.innerHTML = "";
+
+        let filteredBooks = books;
+        if (filterSelect.value !== "All") {
+            filteredBooks = books.filter(b => b.category === filterSelect.value);
+        }
+
+        filteredBooks.forEach((book, index) => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <img src="${book.imageUrl}" class="book-img">
+                <h3>${book.title}</h3>
+                <p><strong>Author:</strong> ${book.author}</p>
+                <p><strong>Category:</strong> ${book.category}</p>
+                <button class="delete-btn" onclick="deleteBook(${index})">Delete</button>
+            `;
+            bookGrid.appendChild(card);
+        });
+    }
+
+    // Delete Book
+    function deleteBook(index) {
+        books.splice(index, 1);
+        renderBooks();
+    }
+
+    // Sorting
+    sortBtn.addEventListener("click", () => {
+        books.sort((a, b) => {
+            return isAscending
+                ? a.title.localeCompare(b.title)
+                : b.title.localeCompare(a.title);
+        });
+
+        sortBtn.textContent = isAscending ? "Sort Z → A" : "Sort A → Z";
+        isAscending = !isAscending;
+
+        renderBooks();
+    });
+
+    // Filter
+    filterSelect.addEventListener("change", renderBooks);
+</script>
+
+</body>
+</html>
